@@ -246,3 +246,76 @@ data_marj |>
 ```
 
 ![](strings_factors_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+# load weater data
+
+``` r
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USW00022534", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2021-01-01",
+    date_max = "2023-12-31") |>
+  mutate(
+    name = recode(
+      id, 
+      USW00094728 = "CentralPark_NY", 
+      USW00022534 = "Molokai_HI",
+      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) |>
+  select(name, id, everything())
+```
+
+    ## using cached file: /Users/carriewww/Library/Caches/org.R-project.R/R/rnoaa/noaa_ghcnd/USW00094728.dly
+
+    ## date created (size, mb): 2024-10-28 19:36:31.594818 (8.657)
+
+    ## file min/max dates: 1869-01-01 / 2024-10-31
+
+    ## using cached file: /Users/carriewww/Library/Caches/org.R-project.R/R/rnoaa/noaa_ghcnd/USW00022534.dly
+
+    ## date created (size, mb): 2024-10-28 19:36:46.039162 (3.938)
+
+    ## file min/max dates: 1949-10-01 / 2024-10-31
+
+    ## using cached file: /Users/carriewww/Library/Caches/org.R-project.R/R/rnoaa/noaa_ghcnd/USS0023B17S.dly
+
+    ## date created (size, mb): 2024-10-28 19:36:50.646793 (1.039)
+
+    ## file min/max dates: 1999-09-01 / 2024-10-31
+
+``` r
+weather_df |>
+  mutate(name = fct_reorder(name,tmax))|> # it reorders the name factor based on the tmax (maximum temperature) values.
+  ggplot(aes(x = name, y = tmax)) +
+  geom_violin()
+```
+
+    ## Warning: There was 1 warning in `mutate()`.
+    ## ℹ In argument: `name = fct_reorder(name, tmax)`.
+    ## Caused by warning:
+    ## ! `fct_reorder()` removing 19 missing values.
+    ## ℹ Use `.na_rm = TRUE` to silence this message.
+    ## ℹ Use `.na_rm = FALSE` to preserve NAs.
+
+    ## Warning: Removed 19 rows containing non-finite outside the scale range
+    ## (`stat_ydensity()`).
+
+![](strings_factors_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+``` r
+  lm(tmax ~ name, data = weather_df) #data coming from the pipe (i.e., weather_df), represented by the dot (.).
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = tmax ~ name, data = weather_df)
+    ## 
+    ## Coefficients:
+    ##      (Intercept)    nameMolokai_HI  nameWaterhole_WA  
+    ##            17.87             10.53            -10.31
+
+``` r
+#lm() linear regression
+```

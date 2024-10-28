@@ -26,6 +26,8 @@ library(dplyr)
 library(tidyr)
 library(stringr)
 library(ggplot2)
+library(rnoaa)
+
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 
@@ -215,9 +217,38 @@ data_marj |>
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```
 
+# load weater data
+```{r}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USW00022534", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2021-01-01",
+    date_max = "2023-12-31") |>
+  mutate(
+    name = recode(
+      id, 
+      USW00094728 = "CentralPark_NY", 
+      USW00022534 = "Molokai_HI",
+      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) |>
+  select(name, id, everything())
+```
 
 
+```{r}
+weather_df |>
+  mutate(name = fct_reorder(name,tmax))|> # it reorders the name factor based on the tmax (maximum temperature) values.
+  ggplot(aes(x = name, y = tmax)) +
+  geom_violin()
+```
 
+```{r}
+
+  lm(tmax ~ name, data = weather_df) #data coming from the pipe (i.e., weather_df), represented by the dot (.).
+#lm() linear regression
+```
 
 
 
