@@ -112,10 +112,19 @@ nyc_water_json =
   content("text")|>
   jsonlite::fromJSON()|>
   as_tibble()
-
-
 ```
 
+
+# BRFSS
+
+same process, different data
+```{r}
+brfss_2010 = 
+  GET("https://chronicdata.cdc.gov/resource/acme-vg9e.csv",
+      query = list("$limit" = 5000))|>
+  content("parsed")
+
+```
 
 
 
